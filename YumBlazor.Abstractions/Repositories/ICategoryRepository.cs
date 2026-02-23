@@ -4,10 +4,10 @@ namespace YumBlazor.Abstractions.Repositories
 {
     public interface ICategoryRepository
     {
-        public Category Create(Category category);
-        public Category Update(Category category);
-        public bool Delete(int id);
-        public Category GetById(int id);
-        public IEnumerable<Category> GetAll();
+        public Task<Category> CreateAsync(Category category);
+        public Task<Category> UpdateAsync(Category category);
+        public Task<bool> DeleteAsync(int id);
+        public Task<Category> GetByIdAsync(int id);
+        public Task<IEnumerable<Category>> GetAllAsync();
     }
 }
