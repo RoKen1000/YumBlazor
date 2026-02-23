@@ -34,6 +34,9 @@ else
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Price</th>
+                            <th>Special Tag</th>
+                            <th>Category</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -44,6 +47,16 @@ else
                                 <td>
                                     @product.Name
                                 </td>
+                                <td>
+                                    @product.Price.ToString("C")
+                                </td>
+                                <td>
+                                    @product.SpecialTag
+                                </td>
+                                <td>
+                                    @product.Category?.Name
+                                </td>
+
                                 <td>
                                     <a type="button" href="product/update/@product.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i>Edit</a>
                                     <button class="btn btn-danger" @onclick="() => HandleDeleteAsync(product.Id)"><i class="bi bi-trash3"></i>Delete</button>
@@ -66,14 +79,14 @@ else
     {
         if (firstRender)
         {
-            await LoadCategoriesAsync();
+            await LoadProductsAsync();
 
             IsProcessing = false;
             StateHasChanged();
         }
     }
 
-    private async Task LoadCategoriesAsync()
+    private async Task LoadProductsAsync()
     {
         Products = await _productRepository.GetAllAsync();
     }
@@ -101,7 +114,7 @@ else
                 await _jsRuntime.ToastrError("Product Delete Failed");
             }
 
-            await LoadCategoriesAsync();
+            await LoadProductsAsync();
         }
 
         await _jsRuntime.InvokeVoidAsync("HideConfirmationModal");

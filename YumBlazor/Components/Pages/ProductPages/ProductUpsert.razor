@@ -2,10 +2,12 @@
 @page "/product/update/{id:int}"
 
 @inject IProductRepository _productRepository;
+@inject ICategoryRepository _categoryRepository;
 @inject NavigationManager _navigationManager;
 @inject IJSRuntime _jsRuntime;
+@inject IWebHostEnvironment _webHostEnvironment;
 
-@if (IsProcessing)
+@if (_isProcessing)
 {
     <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
         <img src="/images/loading.gif" alt="loading" />
@@ -32,14 +34,59 @@ else
                         <ValidationMessage For="@(() => Product.Name)" />
                     </div>
 
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="Product.Description" class="form-control" />
+                        <label for="@Product.Description">Description</label>
+                        <ValidationMessage For="@(() => Product.Description)" />
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputNumber @bind-Value="Product.Price" class="form-control" />
+                        <label for="@Product.Price">Price</label>
+                        <ValidationMessage For="@(() => Product.Price)" />
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputSelect @bind-Value="Product.CategoryId" class="form-control" id="category">
+                            <option value="0">--Select Category--</option>
+
+                            @foreach(var category in Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </InputSelect>
+                        <label for="@Product.Category">Category</label>
+                        <ValidationMessage For="@(() => Product.Category)" />
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        @if(Product.ImageUrl is null)
+                        {
+                            <InputFile OnChange="LoadFiles" @bind-Value="Product.Price" class="form-control" id="custom-file" accept="image/x-png,image/jpeg"></InputFile>
+                            <label for="customFile">Upload Image</label>
+
+                            @if(Product.ImageUrl != null)
+                            {
+                                <div class="row pt-3">
+                                    <div class="col-3">
+                                        <img src="@Product.ImageUrl" alt="product image" class="img-thumbnail" />
+                                    </div>
+                                    <div class="col-md-9">
+                                        <i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
                     <div class="row mt-3">
                         <div class="col-6 col-md-3">
-                            <button type="submit" class="btn btn-primary form-control" disabled="@IsProcessing">
-                                <i class="bi bi-floppy2-fill"></i> Update
+                            <button type="submit" class="btn btn-primary form-control" disabled="@_isProcessing">
+                                <i class="bi bi-floppy2-fill"></i> @(Id > 0 ? "Update" : "Create")
                             </button>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="product" type="submit" class="btn btn-secondary form-control" disabled="@IsProcessing">
+                            <a href="product" type="submit" class="btn btn-secondary form-control" disabled="@_isProcessing">
                                 <i class="bi bi-arrow-bar-left"></i> Back to list
                             </a>
                         </div>
@@ -53,33 +100,46 @@ else
 @code {
     [Parameter]
     public int Id { get; set; }
-    private bool IsProcessing { get; set; } = true;
+    private bool _isProcessing { get; set; } = true;
 
     [SupplyParameterFromForm]
     private Product Product { get; set; } = new();
+
+    private IEnumerable<Category> Categories { get; set; } = new List<Category>();
+
+    private bool _isImageLoading { get; set; }
+    private string? _directoryPath { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        _directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
+        return base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await LoadProductAsync();
+            await LoadProductAndCategoryListAsync();
 
-            IsProcessing = false;
+            _isProcessing = false;
             StateHasChanged();
         }
     }
 
-    private async Task LoadProductAsync()
+    private async Task LoadProductAndCategoryListAsync()
     {
         if(Id > 0)
         {
             Product = await _productRepository.GetByIdAsync(Id);
         }
+
+        Categories = await _categoryRepository.GetAllAsync();
     }
 
     private async Task UpsertProductAsync(EditContext args)
     {
-        IsProcessing = true;
+        _isProcessing = true;
 
         if(Product.Id == 0)
         {
@@ -92,7 +152,48 @@ else
             await _jsRuntime.ToastrSuccess("Product Updated Successfully");
         }
 
-        IsProcessing = false;
+        _isProcessing = false;
         _navigationManager.NavigateTo("product");
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs args)
+    {
+        _isProcessing = true;
+
+        var file = args.File;
+        var fileInfo = new FileInfo(file.Name);
+        var newFileName = $"{Guid.NewGuid().ToString()}{fileInfo.Extension}";
+
+        if (!Directory.Exists(_directoryPath))
+        {
+            Directory.CreateDirectory(_directoryPath);
+        }
+
+        var path = Path.Combine(_directoryPath, newFileName);
+        await using FileStream fileStream = new(path, FileMode.Create);
+        await file.OpenReadStream(file.Size).CopyToAsync(fileStream);
+
+        Product.ImageUrl = $"/images/products/{newFileName}";
+        _isProcessing = false;
+    }
+
+    private void DeleteImage(MouseEventArgs args)
+    {
+        if(Product.ImageUrl is null)
+        {
+            return;
+        }
+
+        var fileToDelete = Product.ImageUrl.Split('/').Reverse().First();
+        var filePathToDelteImage = Path.Combine(_directoryPath, fileToDelete);
+
+        if (!File.Exists(filePathToDelteImage))
+        {
+            return;
+        }
+
+        File.Delete(filePathToDelteImage);
+        Product.ImageUrl = null;
+        return;
     }
 }
