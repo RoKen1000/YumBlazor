@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DataAccess\YumBlazor.DataAccess.csproj" />
+    <ProjectReference Include="..\YumBlazor.Abstractions\YumBlazor.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>
