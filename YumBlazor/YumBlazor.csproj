@@ -23,4 +23,8 @@
     <ProjectReference Include="..\YumBlazor.Services\YumBlazor.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\products\" />
+  </ItemGroup>
+
 </Project>
