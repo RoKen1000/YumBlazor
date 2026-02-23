@@ -13,6 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DataAccess\YumBlazor.DataAccess.csproj" />
     <ProjectReference Include="..\Models\YumBlazor.Models.csproj" />
     <ProjectReference Include="..\Repositories\YumBlazor.Repositories.csproj" />
