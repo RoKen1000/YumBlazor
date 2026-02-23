@@ -9,18 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Extensions\" />
-    <Folder Include="Services\" />
-    <Folder Include="Repositories\Interfaces\" />
-    <Folder Include="Data\ViewModels\" />
-    <Folder Include="wwwroot\js\" />
+    <ProjectReference Include="..\DataAccess\YumBlazor.DataAccess.csproj" />
+    <ProjectReference Include="..\Models\YumBlazor.Models.csproj" />
+    <ProjectReference Include="..\Repositories\YumBlazor.Repositories.csproj" />
+    <ProjectReference Include="..\YumBlazor.Abstractions\YumBlazor.Abstractions.csproj" />
+    <ProjectReference Include="..\YumBlazor.Services\YumBlazor.Services.csproj" />
   </ItemGroup>
 
 </Project>

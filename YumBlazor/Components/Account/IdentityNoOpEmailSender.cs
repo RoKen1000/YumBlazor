@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using YumBlazor.Data;
+using YumBlazor.Entities;
 
 namespace YumBlazor.Components.Account
 {

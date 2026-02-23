@@ -1,3 +1,8 @@
 <Solution>
+  <Project Path="DataAccess/YumBlazor.DataAccess.csproj" Id="413e686c-c297-4015-9de7-63f789ef502c" />
+  <Project Path="Models/YumBlazor.Models.csproj" Id="7df2cc67-1634-4fb9-b633-5c5cf79885df" />
+  <Project Path="Repositories/YumBlazor.Repositories.csproj" Id="ad42e2aa-07fb-4dec-af69-dd6e8eec1e35" />
+  <Project Path="YumBlazor.Abstractions/YumBlazor.Abstractions.csproj" Id="61796067-a93c-4c01-b671-e7b4fb77d6b9" />
+  <Project Path="YumBlazor.Services/YumBlazor.Services.csproj" Id="66d1d2c0-5fa8-47ae-9c06-1fce5860ba6d" />
   <Project Path="YumBlazor/YumBlazor.csproj" />
 </Solution>
