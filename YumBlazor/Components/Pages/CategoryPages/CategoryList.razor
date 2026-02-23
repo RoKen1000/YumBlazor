@@ -20,7 +20,7 @@ else
         <div class="card-body p-4">
             <div class="row pb-3">
                 <div class="col-12 text-end">
-                    <a type="button" href="category/create" class="btn btn-secondary btn-lg" style="width: 250px;">Create Category</a>
+                    <a type="button" href="category/create" class="btn btn-secondary btn-lg" style="width: 250px;"><i class="bi bi-plus-square"></i>Create Category</a>
                 </div>
             </div>
             @if (Categories.Any())
@@ -42,8 +42,8 @@ else
                                     @category.Name
                                 </td>
                                 <td>
-                                    <a type="button" href="category/update/@category.Id" class="btn btn-primary">Edit</a>
-                                    <button class="btn btn-danger">Delete</button>
+                                    <a type="button" href="category/update/@category.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i>Edit</a>
+                                    <button class="btn btn-danger"><i class="bi bi-trash3"></i>Delete</button>
                                 </td>
                             </tr>
                         }
@@ -57,11 +57,6 @@ else
 @code {
     private bool IsProcessing { get; set; } = true;
     private IEnumerable<Category> Categories { get; set; } = new List<Category>();
-
-    protected override async Task OnInitializedAsync()
-    {
-
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
