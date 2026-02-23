@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using YumBlazor.Components.Account.Pages;
 using YumBlazor.Components.Account.Pages.Manage;
-using YumBlazor.Data;
+using YumBlazor.Entities;
 
 namespace Microsoft.AspNetCore.Routing
 {
