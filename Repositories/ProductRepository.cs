@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using YumBlazor.Abstractions.Repositories;
 using YumBlazor.DataAccess;
 using YumBlazor.Models.Entities;
@@ -9,10 +10,12 @@ namespace YumBlazor.Repositories
     {
 
         private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductRepository(ApplicationDbContext db)
+        public ProductRepository(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
         {
             _db = db;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<Product> CreateAsync(Product product)
@@ -26,6 +29,12 @@ namespace YumBlazor.Repositories
         public async Task<bool> DeleteAsync(int id)
         {
             var product = await _db.Products.FirstOrDefaultAsync(c => c.Id == id);
+            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageUrl.TrimStart('/'));
+
+            if (File.Exists(imagePath))
+            {
+                File.Delete(imagePath);
+            }
 
             if (product != null)
             {
