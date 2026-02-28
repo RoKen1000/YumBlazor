@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using YumBlazor.Entities
+@using YumBlazor.Utilities
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
@@ -14,6 +15,7 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject RoleManager<IdentityRole> RoleManager
 
 <PageTitle>Register</PageTitle>
 
@@ -43,7 +45,16 @@
                         <label for="Input.ConfirmPassword">Confirm Password</label>
                         <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
                     </div>
+                    <div class="form-floating mb-3">
+                        <InputSelect @bind-Value="Input.Role" class="form-select">
+                            <option value="@RoleStrings.Customer" selected>@RoleStrings.Customer</option>
+                            <option value="@RoleStrings.Admin">@RoleStrings.Admin</option>
+                        </InputSelect>
+                        <label for="Input.Role">Select Role</label>
+                        <ValidationMessage For="() => Input.Role" class="text-danger" />
+                    </div>
                     
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
                 </EditForm>
 
                 <br/>
@@ -57,7 +68,6 @@
                         <a href="Account/Login">Sign In</a>
                     </small>
                 </p>
-                <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
 
             </div>
         </div>
@@ -96,6 +106,21 @@
         }
 
         Logger.LogInformation("User created a new account with password.");
+
+        if(!await RoleManager.RoleExistsAsync(RoleStrings.Customer))
+        {
+            await RoleManager.CreateAsync(new IdentityRole(RoleStrings.Customer));
+            await RoleManager.CreateAsync(new IdentityRole(RoleStrings.Admin));
+        }
+
+        if(Input.Role is not null)
+        {
+            await UserManager.AddToRoleAsync(user, Input.Role);
+        }
+        else
+        {
+            await UserManager.AddToRoleAsync(user, RoleStrings.Customer);
+        }
 
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -158,5 +183,7 @@
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+
+        public string? Role { get; set; }
     }
 }
