@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 @inject IProductRepository _productRepository
+@inject ICategoryRepository _categoryRepository
 
 <PageTitle>Home</PageTitle>
 
@@ -18,8 +19,9 @@ else
 
                 <div class="d-flex align-items-center" style="width: 100%;">
                     <input type="text" class="form-control rounded-pill"
-                           placeholder="Search for Food Items!"
-                           style="width: 100%; padding: 20px;">
+                    @bind:event="oninput" @bind:get="_searchText" @bind:set="FilterProductByName"
+                    placeholder="Search for Food Items!"
+                    style="width: 100%; padding: 20px;">
                     <span style="position: relative; left: -43px;"><i class="bi bi-search"></i></span>
                 </div>
             </div>
@@ -30,15 +32,15 @@ else
                 <li class="nav-item">
                     <span class="nav-link" href="#" style="cursor: pointer">All</span>
                 </li>
-                <li class="nav-item">
-                    <span class="nav-link" href="#" style="cursor: pointer">Cat 1</span>
-                </li>
-                <li class="nav-item">
-                    <span class="nav-link" href="#" style="cursor: pointer">Cat 2</span>
-                </li>
+                @foreach(var category in Categories)
+                {
+                    <li class="nav-item">
+                        <span class="nav-link" href="#" style="cursor: pointer">@category.Name</span>
+                    </li>
+                }
             </ul>
             <div class="row mt-4 mx-1">
-                @foreach(var product in Products)
+                @foreach(var product in FilteredProducts)
                 {
                     <div class="col-12 col-md-6 col-lg-4 pe-3 mb-5">
                         <div class="card">
@@ -83,7 +85,11 @@ else
 
 @code{
     private IEnumerable<Product> Products = new List<Product>();
+    private IEnumerable<Category> Categories = new List<Category>();
+    private IEnumerable<Product> FilteredProducts = new List<Product>();
     private bool IsProcessing { get; set; } = true;
+    private int _selectedCategoryId;
+    private string _searchText = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -98,5 +104,30 @@ else
     private async Task LoadProducts()
     {
         Products = await _productRepository.GetAllAsync();
+        Categories = await _categoryRepository.GetAllAsync();
+        FilterProducts(0);
+    }
+
+    private void FilterProducts(int categoryId)
+    {
+        if(categoryId == 0)
+        {
+            FilteredProducts = Products;
+            _selectedCategoryId = categoryId;
+        }
+    }
+
+    private void FilterProductByName(string searchTextValue)
+    {
+        if (string.IsNullOrWhiteSpace(searchTextValue))
+        {
+            FilteredProducts = Products;
+        }
+        else
+        {
+            FilteredProducts = Products.Where(p => p.Name.Contains(searchTextValue, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        _searchText = searchTextValue;
     }
 }
