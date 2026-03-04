@@ -2,6 +2,10 @@
 
 @inject IProductRepository _productRepository
 @inject ICategoryRepository _categoryRepository
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject IJSRuntime _jsRuntime;
+@inject NavigationManager _navigationManager;
+@inject IShoppingCartRepository _shoppingCartRepository;
 
 <PageTitle>Home</PageTitle>
 
@@ -69,7 +73,9 @@ else
                                 <h5 class="card-title text-center lead text-success">@product.Name</h5>
                                 <p class="card-text mt-2">@((MarkupString)product.Description)</p>
                                 <h4 class="text-center">
-                                    <i class="bi bi-cart3 btn btn-success text-right  px-5" style="width:300px"> Add to cart</i>
+                                    <div class="m-lg-auto p-2" @onclick="() => AddOrderItemAsync(product)">
+                                        <i class="bi bi-cart3 btn btn-success text-right  px-5" style="width:300px"> Add to cart</i>
+                                    </div>
                                 </h4>
                                 
 
@@ -140,5 +146,30 @@ else
     private string GetActiveTabClass(int categoryId)
     {
         return categoryId == _selectedCategoryId ? "active" : string.Empty;
+    }
+
+    private async Task AddOrderItemAsync(Product product)
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var authenticated = user.Identity is not null && user.Identity.IsAuthenticated;
+
+        if (!authenticated)
+        {
+            _navigationManager.NavigateTo("/Account/Login", true);
+        }
+        else
+        {
+            var result = await _shoppingCartRepository.UpdateCartAsync(user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value, product.Id, 1);
+
+            if (result)
+            {
+                await _jsRuntime.ToastrSuccess("Product added to cart successfully");
+            }
+            else
+            {
+                await _jsRuntime.ToastrError("Error adding product to cart");
+            }
+        }
     }
 }
